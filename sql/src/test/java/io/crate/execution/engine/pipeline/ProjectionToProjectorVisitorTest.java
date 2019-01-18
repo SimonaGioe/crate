@@ -155,7 +155,7 @@ public class ProjectionToProjectorVisitorTest extends CrateUnitTest {
     @Test
     public void testSortingTopNProjection() throws Exception {
         List<Symbol> outputs = Arrays.asList(Literal.of("foo"), new InputColumn(0), new InputColumn(1));
-        OrderedTopNProjection projection = new OrderedTopNProjection(10, 0, outputs,
+        OrderedTopNProjection projection = new OrderedTopNProjection(10, 0, 100, outputs,
             Arrays.asList(new InputColumn(0), new InputColumn(1)),
             new boolean[]{false, false},
             new Boolean[]{null, null}
@@ -167,7 +167,7 @@ public class ProjectionToProjectorVisitorTest extends CrateUnitTest {
     @Test
     public void testTopNProjectionToSortingProjector() throws Exception {
         List<Symbol> outputs = Arrays.asList(Literal.of("foo"), new InputColumn(0), new InputColumn(1));
-        OrderedTopNProjection projection = new OrderedTopNProjection(TopN.NO_LIMIT, TopN.NO_OFFSET, outputs,
+        OrderedTopNProjection projection = new OrderedTopNProjection(TopN.NO_LIMIT, TopN.NO_OFFSET, 100, outputs,
             Arrays.asList(new InputColumn(0), new InputColumn(1)),
             new boolean[]{false, false},
             new Boolean[]{null, null}
@@ -232,7 +232,7 @@ public class ProjectionToProjectorVisitorTest extends CrateUnitTest {
         List<Symbol> outputs = Arrays.asList(
             new InputColumn(0, DataTypes.STRING), new InputColumn(1, DataTypes.STRING),
             new InputColumn(2, DataTypes.DOUBLE), new InputColumn(3, DataTypes.LONG));
-        OrderedTopNProjection topNProjection = new OrderedTopNProjection(10, 0, outputs,
+        OrderedTopNProjection topNProjection = new OrderedTopNProjection(10, 0, 100, outputs,
             ImmutableList.of(new InputColumn(2, DataTypes.DOUBLE)),
             new boolean[]{false},
             new Boolean[]{null});

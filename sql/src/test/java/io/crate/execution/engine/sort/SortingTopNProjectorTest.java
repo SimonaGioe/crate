@@ -52,15 +52,19 @@ public class SortingTopNProjectorTest extends CrateUnitTest {
 
     private TestingRowConsumer consumer = new TestingRowConsumer();
 
-    private Projector getProjector(int numOutputs, int limit, int offset, Ordering<Object[]> ordering) {
+    private Projector getProjector(int numOutputs, int limit, int offset, Ordering<Object[]> ordering, long numExpectedRows) {
         return new SortingTopNProjector(
             INPUT_LITERAL_LIST,
             COLLECT_EXPRESSIONS,
             numOutputs,
             ordering,
             limit,
-            offset
-        );
+            offset,
+            numExpectedRows);
+    }
+
+    private Projector getProjector(int numOutputs, int limit, int offset, Ordering<Object[]> ordering) {
+        return getProjector(numOutputs, limit, offset, ordering, -1);
     }
 
     private Projector getProjector(int numOutputs, int limit, int offset) {
@@ -81,6 +85,15 @@ public class SortingTopNProjectorTest extends CrateUnitTest {
             iterateLength++;
         }
         assertThat(iterateLength, is(3));
+    }
+
+    @Test
+    public void testOrderByWithLimitMuchHigherThanExpectedRowsCount() throws Exception {
+        Projector projector = getProjector(1, 50_000, TopN.NO_OFFSET, FIRST_CELL_ORDERING, 10);
+        consumer.accept(projector.apply(TestingBatchIterators.range(1, 11)), null);
+
+        Bucket rows = consumer.getBucket();
+        assertThat(rows.size(), is(10));
     }
 
     @Test
@@ -110,7 +123,7 @@ public class SortingTopNProjectorTest extends CrateUnitTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Invalid LIMIT: value must be > 0; got: -1");
 
-        new SortingTopNProjector(INPUT_LITERAL_LIST, COLLECT_EXPRESSIONS, 2, FIRST_CELL_ORDERING, -1, 0);
+        new SortingTopNProjector(INPUT_LITERAL_LIST, COLLECT_EXPRESSIONS, 2, FIRST_CELL_ORDERING, -1, 0, RANDOM_MULTIPLIER);
     }
 
     @Test
@@ -118,7 +131,7 @@ public class SortingTopNProjectorTest extends CrateUnitTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Invalid LIMIT: value must be > 0; got: 0");
 
-        new SortingTopNProjector(INPUT_LITERAL_LIST, COLLECT_EXPRESSIONS, 2, FIRST_CELL_ORDERING, 0, 0);
+        new SortingTopNProjector(INPUT_LITERAL_LIST, COLLECT_EXPRESSIONS, 2, FIRST_CELL_ORDERING, 0, 0, RANDOM_MULTIPLIER);
     }
 
     @Test
@@ -126,7 +139,7 @@ public class SortingTopNProjectorTest extends CrateUnitTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Invalid OFFSET: value must be >= 0; got: -1");
 
-        new SortingTopNProjector(INPUT_LITERAL_LIST, COLLECT_EXPRESSIONS, 2, FIRST_CELL_ORDERING, 1, -1);
+        new SortingTopNProjector(INPUT_LITERAL_LIST, COLLECT_EXPRESSIONS, 2, FIRST_CELL_ORDERING, 1, -1, RANDOM_MULTIPLIER);
     }
 
     @Test
@@ -135,7 +148,7 @@ public class SortingTopNProjectorTest extends CrateUnitTest {
         expectedException.expectMessage("Invalid LIMIT + OFFSET: value must be <= 2147483630; got: 2147483646");
 
         int i = Integer.MAX_VALUE / 2;
-        new SortingTopNProjector(INPUT_LITERAL_LIST, COLLECT_EXPRESSIONS, 2, FIRST_CELL_ORDERING, i, i);
+        new SortingTopNProjector(INPUT_LITERAL_LIST, COLLECT_EXPRESSIONS, 2, FIRST_CELL_ORDERING, i, i, -1);
     }
 
     @Test
@@ -144,6 +157,6 @@ public class SortingTopNProjectorTest extends CrateUnitTest {
         expectedException.expectMessage("Invalid LIMIT + OFFSET: value must be <= 2147483630; got: -2147483648");
 
         int i = Integer.MAX_VALUE / 2 + 1;
-        new SortingTopNProjector(INPUT_LITERAL_LIST, COLLECT_EXPRESSIONS, 2, FIRST_CELL_ORDERING, i, i);
+        new SortingTopNProjector(INPUT_LITERAL_LIST, COLLECT_EXPRESSIONS, 2, FIRST_CELL_ORDERING, i, i, -1);
     }
 }

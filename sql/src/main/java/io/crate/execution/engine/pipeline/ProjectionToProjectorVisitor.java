@@ -228,7 +228,8 @@ public class ProjectionToProjectorVisitor
                 numOutputs,
                 OrderingByPosition.arrayOrdering(orderByIndices, projection.reverseFlags(), projection.nullsFirst()),
                 projection.limit(),
-                projection.offset()
+                projection.offset(),
+                projection.numExpectedRows()
             );
         }
         return new SortingProjector(

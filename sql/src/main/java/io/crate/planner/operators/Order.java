@@ -88,6 +88,7 @@ class Order extends OneInputPlan {
         OrderedTopNProjection topNProjection = new OrderedTopNProjection(
             Limit.limitAndOffset(limit, offset),
             0,
+            source.numExpectedRows(),
             InputColumns.create(outputs, ctx),
             InputColumns.create(orderBy.orderBySymbols(), ctx),
             orderBy.reverseFlags(),

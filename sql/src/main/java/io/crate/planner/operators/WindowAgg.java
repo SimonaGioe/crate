@@ -163,6 +163,7 @@ public class WindowAgg extends OneInputPlan {
             OrderedTopNProjection topNProjection = new OrderedTopNProjection(
                 Limit.limitAndOffset(limit, offset),
                 0,
+                source.numExpectedRows(),
                 outputs,
                 orderByInputColumns,
                 orderBy.reverseFlags(),

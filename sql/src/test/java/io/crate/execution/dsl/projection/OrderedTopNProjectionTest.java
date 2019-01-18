@@ -41,6 +41,7 @@ public class OrderedTopNProjectionTest extends CrateUnitTest {
         Projection p = new OrderedTopNProjection(
             10,
             20,
+            100,
             Collections.singletonList(Literal.of("foobar")),
             Collections.singletonList(new InputColumn(0, DataTypes.STRING)),
             new boolean[] { true },

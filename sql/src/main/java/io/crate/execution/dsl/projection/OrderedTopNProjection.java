@@ -43,6 +43,7 @@ public class OrderedTopNProjection extends Projection {
 
     private final int limit;
     private final int offset;
+    private final long numExpectedRows;
     private final List<Symbol> outputs;
     private final List<Symbol> orderBy;
     private final boolean[] reverseFlags;
@@ -50,6 +51,7 @@ public class OrderedTopNProjection extends Projection {
 
     public OrderedTopNProjection(int limit,
                                  int offset,
+                                 long numExpectedRows,
                                  List<Symbol> outputs,
                                  List<Symbol> orderBy,
                                  boolean[] reverseFlags,
@@ -63,6 +65,7 @@ public class OrderedTopNProjection extends Projection {
 
         this.limit = limit;
         this.offset = offset;
+        this.numExpectedRows = numExpectedRows;
         this.outputs = outputs;
         this.orderBy = orderBy;
         this.reverseFlags = reverseFlags;
@@ -72,6 +75,7 @@ public class OrderedTopNProjection extends Projection {
     public OrderedTopNProjection(StreamInput in) throws IOException {
         limit = in.readVInt();
         offset = in.readVInt();
+        numExpectedRows = in.readLong();
         outputs = Symbols.listFromStream(in);
         int numOrderBy = in.readVInt();
         if (numOrderBy == 0) {
@@ -102,6 +106,10 @@ public class OrderedTopNProjection extends Projection {
         return offset;
     }
 
+    public long numExpectedRows() {
+        return numExpectedRows;
+    }
+
     public boolean[] reverseFlags() {
         return reverseFlags;
     }
@@ -129,6 +137,7 @@ public class OrderedTopNProjection extends Projection {
     public void writeTo(StreamOutput out) throws IOException {
         out.writeVInt(limit);
         out.writeVInt(offset);
+        out.writeLong(numExpectedRows);
         Symbols.toStream(outputs, out);
         out.writeVInt(orderBy.size());
         for (int i = 0; i < orderBy.size(); i++) {
@@ -147,6 +156,7 @@ public class OrderedTopNProjection extends Projection {
 
         if (limit != that.limit) return false;
         if (offset != that.offset) return false;
+        if (numExpectedRows != that.numExpectedRows) return false;
         if (!outputs.equals(that.outputs)) return false;
         if (!orderBy.equals(that.orderBy)) return false;
         if (!Arrays.equals(reverseFlags, that.reverseFlags)) return false;

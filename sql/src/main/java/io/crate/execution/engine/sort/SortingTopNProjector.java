@@ -43,20 +43,23 @@ public class SortingTopNProjector implements Projector {
      * @param ordering           ordering that is used to compare the rows
      * @param limit              the number of rows to gather, pass to upStream
      * @param offset             the initial offset, this number of rows are skipped
+     * @param numExpectedRows    the total number of rows expected
      */
     public SortingTopNProjector(Collection<? extends Input<?>> inputs,
                                 Iterable<? extends CollectExpression<Row, ?>> collectExpressions,
                                 int numOutputs,
                                 Comparator<Object[]> ordering,
                                 int limit,
-                                int offset) {
+                                int offset,
+                                long numExpectedRows) {
         collector = new SortingTopNCollector(
             inputs,
             collectExpressions,
             numOutputs,
             ordering,
             limit,
-            offset
+            offset,
+            numExpectedRows
         );
     }
 
